@@ -1,0 +1,40 @@
+# gcloud:
+#   networks:
+#     temp-interview-vpc:
+#       firewalls:
+#         firewall001:
+#           action: allow
+#           cidrs: ["10.1.0.0/20", "192.168.0.0/23"]
+#           protocol_ports:
+#             tcp: ["22", "80", "443-8080"]
+#             udp: ["5555", "90-180"]
+#         firewall002:
+#           action: deny
+#           cidrs: ["10.1.0.0/20", "192.168.0.0/23"]
+#           protocol_ports:
+#             tcp: ["777"]
+
+firewall_rules:
+  firewall001:
+    action: allow
+    cidrs:
+      - 10.1.0.0/20
+      - 192.168.0.0/23
+    protocol_ports:
+      tcp:
+        - "22"
+        - "80"
+        - "443-8080"
+      udp:
+        - "5555"
+        - "90-180"
+    providers:
+      gcloud:
+        networks:
+          temp-interview-vpc:
+            name: firewall-001
+            description: "A test firewall rule"
+            priority: 1000
+            target_service_accounts: []
+            target_tags:
+              - test-firewall            
