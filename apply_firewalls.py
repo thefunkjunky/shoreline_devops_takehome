@@ -6,12 +6,19 @@ import yaml
 
 from firewall import FirewallRule
 from gcloud_firewall import apply_gcloud_firewall
+from aws_firewall import apply_aws_firewall
 
 
 def apply_gcloud_config(firewall_rule, gcloud_configs):
   """Parses and applies firewall rules for Google Cloud"""
   for network, configs in gcloud_configs["networks"].items():
     apply_gcloud_firewall(firewall_rule, network, configs)
+
+
+def apply_aws_config(firewall_rule, aws_configs):
+  """Parses and applies firewall rules for AWS"""
+  if "network_firewall" in aws_configs:
+    apply_aws_firewall(firewall_rule, aws_configs["network_firewall"])
 
 
 def main():
@@ -36,6 +43,10 @@ def main():
     )
     if "gcloud" in firewall_config["providers"]:
       apply_gcloud_config(firewall_rule, firewall_config["providers"]["gcloud"])
+
+    if "aws" in firewall_config["providers"]:
+      apply_aws_config(firewall_rule, firewall_config["providers"]["aws"])
+
 
 
 if __name__ == '__main__':

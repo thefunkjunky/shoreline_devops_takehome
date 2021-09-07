@@ -37,4 +37,13 @@ firewall_rules:
             priority: 1000
             target_service_accounts: []
             target_tags:
-              - test-firewall            
+              - test-firewall  
+      aws:
+        network_firewall:
+          rule_group: firewall-test-group
+          policy: firewall-test-policy
+          firewall: test-firewall
+          vpc: test-vpc
+          priority_start: 100
+          priority_jump: 100
+          add_to_capacity: 10
