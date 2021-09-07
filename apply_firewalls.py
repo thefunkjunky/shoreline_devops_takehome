@@ -9,16 +9,16 @@ from gcloud_firewall import get_creds_project, init_gcloud_client, apply_gcloud_
 from aws_firewall import init_aws_client, apply_aws_rule_group, apply_aws_firewall_resources
 
 
-def apply_gcloud_rule(firewall_rule, gcloud_configs):
+def apply_gcloud_rule(client, firewall_rule, gcloud_configs):
   """Parses and applies firewall rules for Google Cloud"""
   for network, configs in gcloud_configs["networks"].items():
-    apply_gcloud_firewall(firewall_rule, network, configs)
+    apply_gcloud_firewall(client, firewall_rule, network, configs)
 
 
-def apply_aws_rule(firewall_rule, aws_configs):
+def apply_aws_rule(client, firewall_rule, aws_configs):
   """Parses and applies firewall rules for AWS"""
   if "network_firewall" in aws_configs:
-    apply_aws_rule_group(firewall_rule, aws_configs["network_firewall"])
+    apply_aws_rule_group(client, firewall_rule, aws_configs["network_firewall"])
 
 
 def main():
