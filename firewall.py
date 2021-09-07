@@ -1,5 +1,5 @@
 """
-Firewall project
+Firewall rule object
 """
 
 from ipaddress import IPv4Network
