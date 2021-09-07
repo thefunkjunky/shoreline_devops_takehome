@@ -9,6 +9,21 @@ from google.cloud.compute_v1.types import Firewall, Allowed, Denied
 from google.api_core.exceptions import NotFound
 
 
+def get_creds_project():
+  """Returns authorization credentials and project"""
+  if gcloud_config_helper.on_path():
+    credentials, project = gcloud_config_helper.default()
+  else:
+    credentials, project = google.auth.default()
+  return credentials, project
+
+
+def init_gcloud_client(credentials):
+  """Returns gcloud client object authorized with credentials"""
+  client = FirewallsClient(credentials=credentials)
+  return client
+
+
 def gen_gcloud_firewall(firewall_rule, network_url, configs):
   """Generates a Google Cloud Firewall object"""
   allowed = []
@@ -54,15 +69,9 @@ def check_firewall_exists(client, project, firewall_name):
   return firewall_exists
 
 
-def apply_gcloud_firewall(firewall_rule, network, configs):
-  if gcloud_config_helper.on_path():
-    credentials, project = gcloud_config_helper.default()
-  else:
-    credentials, project = google.auth.default()
+def apply_gcloud_firewall(client, firewall_rule, project, network, configs):
 
   network_url = f"projects/{project}/global/networks/{network}"
-
-  client = FirewallsClient(credentials=credentials)
 
   firewall_name = configs["name"]
 

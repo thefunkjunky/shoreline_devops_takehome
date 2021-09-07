@@ -41,9 +41,21 @@ firewall_rules:
       aws:
         network_firewall:
           rule_group: firewall-test-group
-          policy: firewall-test-policy
-          firewall: test-firewall
-          vpc: test-vpc
           priority_start: 100
           priority_jump: 100
           add_to_capacity: 10
+
+additional_provider_configs:
+  aws:
+    policies:
+      firewall-test-policy:
+        rule_groups:
+          firewall-test-group:
+            priority: 100
+    firewalls:
+      test-firewall:
+        vpc_id: vpc-04469d8065a4cbecc
+        subnet_ids:
+          - subnet-00ab8925d275452f8
+          - subnet-058d237564d67042e
+        policy: firewall-test-policy

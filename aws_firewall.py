@@ -5,27 +5,51 @@ Applies firewall rules to AWS resources
 import boto3
 
 
+def init_aws_client():
+  """Initializes and returns AWS boto3 client object"""
+  client = boto3.client("network-firewall")
+  return client
+
+
 def check_firewall_exists(firewall_rule, aws_configs):
   """Checks if the given firewall exists or not"""
   pass
 
 
-def create_firewall_policy(client, rule_group_arns, aws_configs):
+def create_firewall(client, firewall_name, firewall_configs):
+  """Creates an AWS Network Firewall"""
+  subnets = [{"SubnetId": subnet} for subnet in firewall_configs["subnet_ids"]]
+  policy_response = client.describe_firewall_policy(
+    FirewallPolicyName=firewall_configs["policy"]
+  )
+  policy_arn = policy_response["FirewallPolicyResponse"]
+  response = client.create_firewall(
+    FirewallName=firewall_name,
+    FirewallPolicyArn=firewall_configs["policy"],
+    VpcId=firewall_configs["vpc_id"],
+    SubnetMappings=subnets
+  )
+
+
+def create_firewall_policy(client, policy_name, policy_configs):
   """Creates an AWS Network Firewall policy"""
   rule_groups = []
-  priority = aws_configs["priority_start"]
-  for arn in rule_group_arns:
+  rule_group_arns = []
+  for group, config in policy_configs["rule_groups"].items():
+    group_response = client.describe_rule_group(
+      RuleGroupName=group
+    )
+    arn = group_response["RuleGroupResponse"]["RuleGroupArn"]
     rule_groups.append(
       {
         "ResourceArn": arn,
-        "Priority": priority
+        "Priority": config["priority"]
       }
     )
-    priority += aws_configs["priority_jump"]
 
-  print(f"Creating AWS Firewall policy {aws_configs['policy']}")
+  print(f"Creating AWS Firewall policy {policy_name}")
   response = client.create_firewall_policy(
-    FirewallPolicyName=aws_configs["policy"],
+    FirewallPolicyName=policy_name,
     FirewallPolicy={
       "StatelessRuleGroupReferences": rule_groups,
       "StatelessDefaultActions": ["aws:drop"],
@@ -33,6 +57,7 @@ def create_firewall_policy(client, rule_group_arns, aws_configs):
     }
   )
   return response
+
 
 def create_rule_group(client, firewall_rule, aws_configs):
   """Creates an AWS Network Firewall rule group"""
@@ -109,9 +134,20 @@ def create_rule_group(client, firewall_rule, aws_configs):
 
 
 
-def apply_aws_firewall(firewall_rule, aws_configs):
-  """Creates/updates AWS Network Firewall with firewall rule"""
-  client = boto3.client("network-firewall")
-  rule_group_response = create_rule_group(client, firewall_rule, aws_configs)
+def apply_aws_rule_group(client, firewall_rule, aws_configs):
+  """Creates/updates AWS Network Firewall rule groups"""
+  try:
+    rule_group_response = client.describe_rule_group(
+      RuleGroupName=aws_configs["rule_group"]
+    )
+  except:
+    rule_group_response = create_rule_group(client, firewall_rule, aws_configs)
   rule_group_arn = rule_group_response["RuleGroupResponse"]["RuleGroupArn"]
-  policy_response = create_firewall_policy(client, [rule_group_arn], aws_configs)
+
+
+def apply_aws_firewall_resources(client, firewall_configs):
+  """Creates/updates AWS Firewall policies and firewalls"""
+  for policy, policy_config in firewall_configs["policies"].items():  
+    policy_response = create_firewall_policy(client, policy, policy_config)
+  for firewall, firewall_config in firewall_configs["firewalls"].items():
+    firewall_response = create_firewall(client, firewall, firewall_config)
