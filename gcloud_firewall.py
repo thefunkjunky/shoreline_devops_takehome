@@ -24,7 +24,7 @@ def init_gcloud_client(credentials):
   return client
 
 
-def gen_gcloud_firewall(firewall_rule, network_url, configs):
+def init_gcloud_firewall(firewall_rule, network_url, configs):
   """Generates a Google Cloud Firewall object"""
   allowed = []
   denied = []
@@ -75,7 +75,7 @@ def apply_gcloud_firewall(client, firewall_rule, project, network, configs):
 
   firewall_name = configs["name"]
 
-  firewall = gen_gcloud_firewall(firewall_rule, network_url, configs)
+  firewall = init_gcloud_firewall(firewall_rule, network_url, configs)
   firewall_exists = check_firewall_exists(client, project, firewall_name)
 
   if firewall_exists:

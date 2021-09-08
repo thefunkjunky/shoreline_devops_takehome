@@ -42,6 +42,7 @@ def main():
     firewall_rule = FirewallRule(
       cidrs=configs["cidrs"],
       protocol_ports=configs["protocol_ports"],
+      # action="hooey"
       action=configs["action"]
     )
     if "gcloud" in configs["providers"]:

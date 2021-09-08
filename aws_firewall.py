@@ -3,7 +3,6 @@ Applies firewall rules to AWS resources
 """
 
 import boto3
-import botocore
 
 protocol_map = {
   "tcp": 6,
