@@ -140,7 +140,7 @@ def apply_rule_group(client, firewall_rule, aws_configs):
   ]
 
   sources_capacity = len(sources) if len(sources) > 0 else 1
-  protocols_capacity = len(sources) if len(firewall_rule.protocol_ports) > 0 else 1
+  protocols_capacity = len(firewall_rule.protocol_ports) if len(firewall_rule.protocol_ports) > 0 else 1
 
   # I don't understand this, but it seems to work
   capacity *= sources_capacity * protocols_capacity
