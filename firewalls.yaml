@@ -1,0 +1,45 @@
+firewall_rules:
+  firewall001:
+    action: allow
+    cidrs:
+      - 10.1.0.0/21
+      - 192.168.0.0/23
+    protocol_ports:
+      tcp:
+        - "22"
+        - "80"
+        - "443-8080"
+      udp:
+        - "5555"
+        - "90-180"
+    providers:
+      gcloud:
+        networks:
+          temp-interview-vpc:
+            name: firewall-001
+            description: "A test firewall rule"
+            priority: 1000
+            target_service_accounts: []
+            target_tags:
+              - test-firewall  
+      aws:
+        network_firewall:
+          rule_group: firewall-test-group
+          priority_start: 100
+          priority_jump: 100
+          add_to_capacity: 10
+
+additional_provider_configs:
+  aws:
+    policies:
+      firewall-test-policy:
+        rule_groups:
+          firewall-test-group:
+            priority: 100
+    firewalls:
+      test-firewall:
+        vpc_id: vpc-04469d8065a4cbecc
+        subnet_ids:
+          - subnet-00ab8925d275452f8
+          - subnet-058d237564d67042e
+        policy: firewall-test-policy
